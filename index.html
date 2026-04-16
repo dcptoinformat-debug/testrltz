@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Практична робота «Геоінформаційні системи для планування та моніторингу маршрутів»</title>
+  <style>
+    :root{
+      --bg:#0b1020;--card:#111833;--ink:#eaf0ff;--muted:#aab5d1;--accent:#6ea8fe;--accent-2:#8df1d6;--border:rgba(255,255,255,.08);--shadow:0 10px 30px rgba(0,0,0,.35);--radius-xl:26px;--pad-lg:28px;--gap-lg:24px;
+    }
+    html,body{height:100%}
+    body{margin:0; background: radial-gradient(1200px 800px at 80% -10%, #1b2250 0%, #0b1020 60%), var(--bg); color:var(--ink); font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .container{max-width:1200px; margin-inline:auto; padding:34px 18px 120px}
+    header{display:grid; gap:10px; margin-bottom:16px; text-align:center}
+    h1{font-size:clamp(24px,3.2vw,40px); margin:0}
+    .grid{display:grid; gap:var(--gap-lg); grid-template-columns:repeat(12,1fr)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow); padding:var(--pad-lg)}
+    .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+    @media(max-width:980px){.span-8,.span-6,.span-4{grid-column:span 12}}
+    h2,h3{margin:.2rem 0 1rem} h2{font-size:clamp(18px,2.2vw,26px)} h3{font-size:clamp(16px,1.8vw,20px); color:var(--accent-2)}
+    label{display:block; font-weight:600; margin:.6rem 0 .25rem}
+    input[type=text],input[type=number],textarea{width:100%; box-sizing:border-box; background:#0c1430; color:var(--ink); border:1px solid var(--border); border-radius:14px; padding:12px 14px; outline:none}
+    textarea{min-height:110px; resize:vertical}
+    .row{display:grid; grid-template-columns:repeat(12,1fr); gap:12px}.row>*{grid-column:span 12}
+    .row .col-3{grid-column:span 3}.row .col-4{grid-column:span 4}.row .col-6{grid-column:span 6}
+    .muted{color:var(--muted); font-size:.92rem}.pill{display:inline-flex; align-items:center; gap:8px; background:rgba(142,215,255,.1); border:1px solid var(--border); padding:8px 12px; border-radius:999px}
+    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:16px; border:1px solid var(--border)}
+    thead th{background:#0d1736; text-align:left; padding:10px 12px; font-weight:700} tbody td{padding:8px 10px; border-top:1px solid var(--border)}
+    input.table-input{padding:8px 10px; border-radius:8px; background:#0c1430; border:1px solid var(--border); color:var(--ink)}
+    .btns{display:flex; gap:10px; flex-wrap:wrap}
+    button{appearance:none; border:none; border-radius:14px; padding:10px 14px; font-weight:700; cursor:pointer; background:linear-gradient(180deg,#6ea8fe,#5a8deb); color:#0b1020}
+    button.secondary{background:linear-gradient(180deg,#1f2a52,#172042); color:var(--ink); border:1px solid var(--border)}
+    button.ghost{background:transparent; border:1px dashed var(--border); color:var(--muted)}
+    .stat{display:flex; gap:8px; align-items:center; color:var(--muted); margin:8px 0}.stat b{color:var(--ink)}
+    .hr{height:1px; background:var(--border); margin:16px 0}
+    @media print{body{background:white; color:black} .card{box-shadow:none; border:1px solid #ccc} button{display:none} .container{padding:0}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Практична робота «Геоінформаційні системи для планування та моніторингу маршрутів»</h1>
+      <div class="pill">📌 Порада: зберігайте роботу кнопкою <b>Зберегти у браузері</b> або <b>Експорт JSON</b>.</div>
+    </header>
+
+    <section class="grid">
+      <div class="card span-12">
+        <h2>Дані здобувача освіти та маршруту</h2>
+        <div class="row">
+          <div class="col-6">
+            <label>Прізвище та ім'я</label>
+            <input id="studentName" type="text" placeholder="Введіть ваше прізвище та ім'я" />
+          </div>
+          <div class="col-6">
+            <label>Маршрут для аналізу</label>
+            <input id="routeCities" type="text" placeholder="Наприклад: Одеса → Гданськ" value="Одеса → Гданськ" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <h2>Рівень 1 (базовий)</h2>
+        <p class="muted">Середня швидкість, таблиця джерел</p>
+        <div class="row">
+          <div class="col-4">
+            <label>2) Обчислення середньої швидкості (за даними Google Maps)</label>
+            <div class="row">
+              <div class="col-4"><label class="muted">Відстань, км</label><input id="distKm" type="number" value="1280" min="1" /></div>
+              <div class="col-4"><label class="muted">Години</label><input id="timeH" type="number" value="16" min="0" /></div>
+              <div class="col-4"><label class="muted">Хвилини</label><input id="timeM" type="number" value="30" min="0" max="59" /></div>
+            </div>
+            <div class="hr"></div>
+            <div class="stat">🚚 Середня швидкість: <b id="avgSpeed">—</b> км/год</div>
+          </div>
+          <div class="col-4">
+            <label>Обчислення середньої швидкості (за даними HERE WeGo)</label>
+            <div class="row">
+              <div class="col-4"><label class="muted">Відстань, км</label><input id="hereDistKm" type="number" value="1260" min="1" /></div>
+              <div class="col-4"><label class="muted">Години</label><input id="hereTimeH" type="number" value="16" min="0" /></div>
+              <div class="col-4"><label class="muted">Хвилини</label><input id="hereTimeM" type="number" value="45" min="0" max="59" /></div>
+            </div>
+            <div class="hr"></div>
+            <div class="stat">🧭 Середня швидкість: <b id="hereAvgSpeed">—</b> км/год</div>
+          </div>
+          <div class="col-4">
+            <label>Обчислення середньої швидкості (за даними OpenStreetMap)</label>
+            <div class="row">
+              <div class="col-4"><label class="muted">Відстань, км</label><input id="osmDistKm" type="number" value="1305" min="1" /></div>
+              <div class="col-4"><label class="muted">Години</label><input id="osmTimeH" type="number" value="17" min="0" /></div>
+              <div class="col-4"><label class="muted">Хвилини</label><input id="osmTimeM" type="number" value="0" min="0" max="59" /></div>
+            </div>
+            <div class="hr"></div>
+            <div class="stat">🗺️ Середня швидкість: <b id="osmAvgSpeed">—</b> км/год</div>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <h3>3) Таблиця джерел</h3>
+        <div style="overflow:auto">
+          <table id="sourcesTable">
+            <thead>
+              <tr>
+                <th style="width:40px">№</th>
+                <th>Джерело</th>
+                <th style="width:140px">Відстань (км)</th>
+                <th style="width:140px">Час (год)</th>
+              </tr>
+            </thead>
+            <tbody id="sourcesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card span-6">
+        <h2>Рівень 2 (середній)</h2>
+        <label>4) Порівняння джерел (найбільш/найменш достовірне, чому?)</label>
+        <textarea id="analysis"></textarea>
+        <label>5) Чинники, що впливають на час у дорозі (оберіть/допишіть)</label>
+        <div class="row">
+          <div class="col-6">
+            <label><input type="checkbox" class="factor" value="Затори"> Затори</label>
+            <label><input type="checkbox" class="factor" value="Ремонтні роботи"> Ремонтні роботи</label>
+            <label><input type="checkbox" class="factor" value="Проходження кордону"> Проходження кордону</label>
+          </div>
+          <div class="col-6">
+            <label><input type="checkbox" class="factor" value="Погодні умови"> Погодні умови</label>
+            <label><input type="checkbox" class="factor" value="Обмеження швидкості"> Обмеження швидкості</label>
+            <label><input type="checkbox" class="factor" value="Тип вантажу/вага"> Тип вантажу/вага</label>
+            <input id="factorOther" type="text" placeholder="Інше: впишіть свій варіант" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-6">
+        <h3>6) Розрахунок пального та вартості</h3>
+        <div class="row">
+          <div class="col-4"><label>Витрата, л/100 км</label><input id="consumption" type="number" value="30" min="0" step="0.1" /></div>
+          <div class="col-4"><label>Ціна за літр, грн</label><input id="price" type="number" value="90" min="0" step="0.01" /></div>
+          <div class="col-4"><label>Google Maps: Відстань, км</label><input id="fuelDist" type="number" value="1280" min="0" step="1" /></div>
+        </div>
+        <div class="stat">⛽ Google Maps: <b id="fuelLiters">—</b> л | 💳 <b id="fuelCost">—</b> грн</div>
+        <div class="hr"></div>
+        <div class="row">
+          <div class="col-6"><label>HERE WeGo: Відстань, км</label><input id="fuelDist2" type="number" value="1260" min="0" step="1" /></div>
+          <div class="col-6"><label>OpenStreetMap: Відстань, км</label><input id="fuelDist3" type="number" value="1305" min="0" step="1" /></div>
+        </div>
+        <div class="stat">⛽ HERE WeGo: <b id="fuelLiters2">—</b> л | 💳 <b id="fuelCost2">—</b> грн</div>
+        <div class="stat">⛽ OpenStreetMap: <b id="fuelLiters3">—</b> л | 💳 <b id="fuelCost3">—</b> грн</div>
+      </div>
+
+      <div class="card span-6">
+        <h3>9) Простий графік: відстань–час</h3>
+        <p class="muted">Введіть для кожного джерела час у годинах та відстань у км. Натисніть «Побудувати графік».</p>
+        <div class="row">
+          <div class="col-6">
+            <label>Google Maps — час (год)</label>
+            <input id="gTime" type="number" value="16.5" step="0.1" />
+            <label>Google Maps — відстань (км)</label>
+            <input id="gDist" type="number" value="1280" step="1" />
+          </div>
+          <div class="col-6">
+            <label>HERE WeGo — час (год)</label>
+            <input id="nTime" type="number" value="16.8" step="0.1" />
+            <label>HERE WeGo — відстань (км)</label>
+            <input id="nDist" type="number" value="1260" step="1" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <label>OpenStreetMap — час (год)</label>
+            <input id="bTime" type="number" value="17" step="0.1" />
+            <label>OpenStreetMap — відстань (км)</label>
+            <input id="bDist" type="number" value="1305" step="1" />
+          </div>
+          <div class="col-6">
+            <div class="btns" style="margin-top:22px">
+              <button type="button" onclick="drawChart()">Побудувати графік</button>
+              <button type="button" class="secondary" onclick="clearChart(); drawChart();">Очистити</button>
+            </div>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <canvas id="chart" width="900" height="380" style="width:100%; background:#0c1430; border:1px solid var(--border); border-radius:16px"></canvas>
+      </div>
+
+      <div class="card span-8">
+        <h2>10) Звіт диспетчера автопарку (3–4 речення)</h2>
+        <textarea id="report" placeholder="Сформулюйте короткий звіт для керівника…"></textarea>
+        <div class="btns" style="margin-top:8px">
+          <button type="button" onclick="autoReport()">Згенерувати на основі введених даних</button>
+          <button type="button" class="secondary" onclick="copyReport()">Копіювати звіт</button>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <h3>11) Покликання на джерело</h3>
+        <label>Посилання на карту/маршрут</label>
+        <input id="qrUrl" type="text" placeholder="Вставте URL" />
+        <label>Відстань (км)</label>
+        <input id="qrDist" type="number" placeholder="Напр., 1280" />
+        <label>Час (год)</label>
+        <input id="qrTime" type="number" placeholder="Напр., 16.5" step="0.1" />
+        <div class="btns" style="margin-top:8px">
+          <button type="button" onclick="pushQRtoTable()">Додати у таблицю джерел</button>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <h2>12) Рефлексія</h2>
+        <textarea id="reflection" placeholder="Що нового ви дізналися? Як це знадобиться у професії?"></textarea>
+        <div class="hr"></div>
+        <div class="btns">
+          <button type="button" onclick="saveToLocal()">💾 Зберегти у браузері</button>
+          <button type="button" class="secondary" onclick="loadFromLocal()">↩️ Відкрити збережене</button>
+          <button type="button" class="secondary" onclick="exportJSON()">⬇️ Експорт JSON</button>
+          <button type="button" class="secondary" onclick="importJSON()">⬆️ Імпорт JSON</button>
+          <button type="button" onclick="window.print()">🖨 Друк</button>
+          <button type="button" class="secondary" onclick="exportHTML()">🌐 Експорт HTML</button>
+          <button type="button" class="ghost" onclick="resetAll()">Скинути форму</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const initialRows = [
+      { source:'Google Maps', dist:'', time:'' },
+      { source:'HERE WeGo', dist:'', time:'' },
+      { source:'OpenStreetMap', dist:'', time:'' }
+    ];
+
+    const tb = document.getElementById('sourcesBody');
+    function buildRow(idx, r={}){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="idx" style="text-align:center">${idx}</td>
+        <td><input class="table-input src" value="${r.source??''}" readonly></td>
+        <td><input class="table-input dist" type="number" value="${r.dist??''}" step="1" placeholder="км"></td>
+        <td><input class="table-input time" type="number" value="${r.time??''}" step="0.1" placeholder="год"></td>`;
+      return tr;
+    }
+    function renderRows(rows){ tb.innerHTML=''; rows.forEach((r,i)=>tb.appendChild(buildRow(i+1,r))); renumber(); }
+    function renumber(){ [...tb.querySelectorAll('.idx')].forEach((c,i)=>c.textContent=i+1); }
+    renderRows(initialRows);
+
+    const distKm=document.getElementById('distKm'), timeH=document.getElementById('timeH'), timeM=document.getElementById('timeM'), avgSpeed=document.getElementById('avgSpeed');
+    const hereDistKm=document.getElementById('hereDistKm'), hereTimeH=document.getElementById('hereTimeH'), hereTimeM=document.getElementById('hereTimeM'), hereAvgSpeed=document.getElementById('hereAvgSpeed');
+    const osmDistKm=document.getElementById('osmDistKm'), osmTimeH=document.getElementById('osmTimeH'), osmTimeM=document.getElementById('osmTimeM'), osmAvgSpeed=document.getElementById('osmAvgSpeed');
+    function calcSingleAvg(d,h,m,out){ const dd=+d.value||0, hh=+h.value||0, mm=+m.value||0, total=hh+mm/60; out.textContent=(dd>0&&total>0)? Math.round(dd/total):'—'; }
+    function calcAvg(){ calcSingleAvg(distKm,timeH,timeM,avgSpeed); calcSingleAvg(hereDistKm,hereTimeH,hereTimeM,hereAvgSpeed); calcSingleAvg(osmDistKm,osmTimeH,osmTimeM,osmAvgSpeed); }
+    [distKm,timeH,timeM,hereDistKm,hereTimeH,hereTimeM,osmDistKm,osmTimeH,osmTimeM].forEach(el=>el.addEventListener('input', calcAvg)); calcAvg();
+
+    const consumption=document.getElementById('consumption'), price=document.getElementById('price');
+    const fuelDist=document.getElementById('fuelDist'), fuelDist2=document.getElementById('fuelDist2'), fuelDist3=document.getElementById('fuelDist3');
+    const fuelLiters=document.getElementById('fuelLiters'), fuelCost=document.getElementById('fuelCost');
+    const fuelLiters2=document.getElementById('fuelLiters2'), fuelCost2=document.getElementById('fuelCost2');
+    const fuelLiters3=document.getElementById('fuelLiters3'), fuelCost3=document.getElementById('fuelCost3');
+    function calcFuelOne(distInput, litersOut, costOut){ const cons=+consumption.value||0, p=+price.value||0, d=+distInput.value||0; const liters=d*cons/100, cost=liters*p; litersOut.textContent=liters.toFixed(1); costOut.textContent=cost.toLocaleString('uk-UA',{maximumFractionDigits:0}); }
+    function calcFuel(){ calcFuelOne(fuelDist,fuelLiters,fuelCost); calcFuelOne(fuelDist2,fuelLiters2,fuelCost2); calcFuelOne(fuelDist3,fuelLiters3,fuelCost3); }
+    [consumption,price,fuelDist,fuelDist2,fuelDist3].forEach(el=>el.addEventListener('input',calcFuel));
+    [distKm,hereDistKm,osmDistKm,gDist,nDist,bDist].forEach(el=>el.addEventListener('input',()=>{
+      if(el===distKm||el===gDist) fuelDist.value = gDist.value || distKm.value;
+      if(el===hereDistKm||el===nDist) fuelDist2.value = nDist.value || hereDistKm.value;
+      if(el===osmDistKm||el===bDist) fuelDist3.value = bDist.value || osmDistKm.value;
+      calcFuel();
+    }));
+    function syncFuelDistancesFromTable(){
+      const rows=[...tb.querySelectorAll('tr')];
+      if(rows[0]) fuelDist.value = rows[0].querySelector('.dist').value || fuelDist.value;
+      if(rows[1]) fuelDist2.value = rows[1].querySelector('.dist').value || fuelDist2.value;
+      if(rows[2]) fuelDist3.value = rows[2].querySelector('.dist').value || fuelDist3.value;
+      calcFuel();
+    }
+    tb.addEventListener('input', (e)=>{
+      if(e.target.classList.contains('dist')) syncFuelDistancesFromTable();
+    });
+    syncFuelDistancesFromTable();
+    calcFuel();
+
+    function collectForm(){
+      const srcRows=[...tb.querySelectorAll('tr')].map(tr=>({source:tr.querySelector('.src').value, dist:tr.querySelector('.dist').value, time:tr.querySelector('.time').value}));
+      return {
+        studentName: studentName.value, routeCities: routeCities.value, distKm: distKm.value, timeH: timeH.value, timeM: timeM.value,
+        hereDistKm: hereDistKm.value, hereTimeH: hereTimeH.value, hereTimeM: hereTimeM.value,
+        osmDistKm: osmDistKm.value, osmTimeH: osmTimeH.value, osmTimeM: osmTimeM.value,
+        sources: srcRows, analysis: analysis.value,
+        factors:[...document.querySelectorAll('.factor:checked')].map(x=>x.value).concat((factorOther.value||'').trim()? [factorOther.value.trim()] : []),
+        consumption: consumption.value, price: price.value, fuelDist: fuelDist.value, fuelDist2: fuelDist2.value, fuelDist3: fuelDist3.value,
+        gTime:gTime.value, gDist:gDist.value, nTime:nTime.value, nDist:nDist.value, bTime:bTime.value, bDist:bDist.value,
+        report: report.value, qrUrl: qrUrl.value, qrDist: qrDist.value, qrTime: qrTime.value, reflection: reflection.value
+      };
+    }
+    function fillForm(d){ if(!d) return;
+      studentName.value=d.studentName||''; routeCities.value=d.routeCities||'Одеса → Гданськ';
+      distKm.value=d.distKm||1280; timeH.value=d.timeH||16; timeM.value=d.timeM||30;
+      hereDistKm.value=d.hereDistKm||1260; hereTimeH.value=d.hereTimeH||16; hereTimeM.value=d.hereTimeM||45;
+      osmDistKm.value=d.osmDistKm||1305; osmTimeH.value=d.osmTimeH||17; osmTimeM.value=d.osmTimeM||0;
+      renderRows((d.sources&&d.sources.length)? d.sources.map((s,i)=>({source:s.source||['Google Maps','HERE WeGo','OpenStreetMap'][i]||'', dist:s.dist||'', time:s.time||''})) : initialRows); syncFuelDistancesFromTable();
+      analysis.value=d.analysis||'';
+      document.querySelectorAll('.factor').forEach(cb=> cb.checked=(d.factors||[]).includes(cb.value));
+      factorOther.value=(d.factors||[]).filter(v=> ![...document.querySelectorAll('.factor')].map(x=>x.value).includes(v)).join(', ');
+      consumption.value=d.consumption||30; price.value=d.price||90; fuelDist.value=d.fuelDist||1280; fuelDist2.value=d.fuelDist2||1260; fuelDist3.value=d.fuelDist3||1305;
+      gTime.value=d.gTime||16.5; gDist.value=d.gDist||1280; nTime.value=d.nTime||16.8; nDist.value=d.nDist||1260; bTime.value=d.bTime||17; bDist.value=d.bDist||1305; fuelDist.value = gDist.value; fuelDist2.value = nDist.value; fuelDist3.value = bDist.value;
+      report.value=d.report||''; qrUrl.value=d.qrUrl||''; qrDist.value=d.qrDist||''; qrTime.value=d.qrTime||''; reflection.value=d.reflection||'';
+      calcAvg(); calcFuel(); drawChart();
+    }
+    function saveToLocal(){ localStorage.setItem('task_route_v3', JSON.stringify(collectForm())); alert('Збережено у браузері.'); }
+    function loadFromLocal(){ const d=localStorage.getItem('task_route_v3'); if(d){ fillForm(JSON.parse(d)); alert('Завантажено.'); } else { alert('Немає збережених даних.'); } }
+    function exportJSON(){ const blob=new Blob([JSON.stringify(collectForm(), null, 2)], {type:'application/json'}); const url=URL.createObjectURL(blob); const a=Object.assign(document.createElement('a'),{href:url,download:'route-task.json'}); document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+    function importJSON(){ const inp=Object.assign(document.createElement('input'),{type:'file',accept:'application/json'}); inp.onchange=()=>{ const file=inp.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=e=>{ try{ fillForm(JSON.parse(e.target.result)); }catch(err){ alert('Помилка імпорту: '+err.message);} }; reader.readAsText(file); }; inp.click(); }
+    function resetAll(){ if(confirm('Скинути всі поля?')){ studentName.value=''; routeCities.value='Одеса → Гданськ'; renderRows(initialRows); document.querySelectorAll('textarea').forEach(el=>el.value=''); document.querySelectorAll('input[type=text]').forEach(el=>{ if(el.id!=='routeCities') el.value=''; }); distKm.value=1280; timeH.value=16; timeM.value=30; hereDistKm.value=1260; hereTimeH.value=16; hereTimeM.value=45; osmDistKm.value=1305; osmTimeH.value=17; osmTimeM.value=0; consumption.value=30; price.value=90; gTime.value=16.5; gDist.value=1280; nTime.value=16.8; nDist.value=1260; bTime.value=17; bDist.value=1305; fuelDist.value=gDist.value; fuelDist2.value=nDist.value; fuelDist3.value=bDist.value; document.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.checked=false); calcAvg(); calcFuel(); clearChart(); drawChart(); } }
+    function pushQRtoTable(){ const url=qrUrl.value.trim()||'Посилання'; const d=qrDist.value.trim(); const t=qrTime.value.trim(); tb.appendChild(buildRow(tb.children.length+1,{google:url, here:'', osm:'', dist:d, time:t})); renumber(); }
+    function autoReport(){ report.value=`Для маршруту «${routeCities.value||'Не вказано'}» виконано порівняння даних Google Maps, HERE WeGo та OpenStreetMap. Середня швидкість за Google Maps становить близько ${avgSpeed.textContent} км/год, за HERE WeGo — ${hereAvgSpeed.textContent} км/год, за OpenStreetMap — ${osmAvgSpeed.textContent} км/год. Орієнтовна вартість пального: Google Maps — ${fuelCost.textContent} грн, HERE WeGo — ${fuelCost2.textContent} грн, OpenStreetMap — ${fuelCost3.textContent} грн. На тривалість поїздки можуть впливати затори, погодні умови, ремонтні роботи та проходження кордону.`; }
+    function copyReport(){ const ta=document.getElementById('report'); ta.select(); document.execCommand('copy'); window.getSelection().removeAllRanges(); alert('Звіт скопійовано.'); }
+
+    function exportHTML(){
+      const data=collectForm(), date=new Date().toLocaleDateString('uk-UA');
+      const htmlContent=`<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Практична робота</title><style>body{font-family:Arial,sans-serif;line-height:1.6;margin:20px}table{width:100%;border-collapse:collapse;margin:15px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#f2f2f2}h1,h2,h3{color:#1f3a5f}</style></head><body><h1>Практична робота «Геоінформаційні системи для планування та моніторингу маршрутів»</h1><p><b>Студент:</b> ${data.studentName||''}<br><b>Маршрут:</b> ${data.routeCities||''}<br><b>Дата:</b> ${date}</p><h2>Середня швидкість</h2><p><b>Google Maps:</b> ${document.getElementById('avgSpeed').textContent} км/год<br><b>HERE WeGo:</b> ${document.getElementById('hereAvgSpeed').textContent} км/год<br><b>OpenStreetMap:</b> ${document.getElementById('osmAvgSpeed').textContent} км/год</p><h2>Таблиця джерел</h2><table><thead><tr><th>№</th><th>Джерело</th><th>Відстань (км)</th><th>Час (год)</th></tr></thead><tbody>${data.sources.map((s,i)=>`<tr><td>${i+1}</td><td>${s.source||''}</td><td>${s.dist||''}</td><td>${s.time||''}</td></tr>`).join('')}</tbody></table><h2>Порівняння джерел</h2><p>${data.analysis||''}</p><h2>Чинники впливу</h2><p>${(data.factors||[]).join(', ')}</p><h2>Розрахунок пального</h2><p><b>Google Maps:</b> ${fuelLiters.textContent} л / ${fuelCost.textContent} грн<br><b>HERE WeGo:</b> ${fuelLiters2.textContent} л / ${fuelCost2.textContent} грн<br><b>OpenStreetMap:</b> ${fuelLiters3.textContent} л / ${fuelCost3.textContent} грн</p><h2>Графік</h2><p>Google Maps: ${data.gTime} год, ${data.gDist} км<br>HERE WeGo: ${data.nTime} год, ${data.nDist} км<br>OpenStreetMap: ${data.bTime} год, ${data.bDist} км</p><h2>Звіт диспетчера автопарку</h2><p>${data.report||''}</p><h2>Рефлексія</h2><p>${data.reflection||''}</p></body></html>`;
+      const blob=new Blob([htmlContent], {type:'text/html;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='Практична_робота.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    const canvas=document.getElementById('chart'), ctx=canvas.getContext('2d'), PAD=48;
+    function clearChart(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#0c1430'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+    function drawAxes(maxX,maxY){ const w=canvas.width,h=canvas.height; ctx.strokeStyle='rgba(255,255,255,.08)'; for(let i=0;i<=5;i++){ const y=PAD+(h-PAD*2)*i/5; ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(w-PAD,y); ctx.stroke(); } for(let i=0;i<=7;i++){ const x=PAD+(w-PAD*2)*i/7; ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,h-PAD); ctx.stroke(); } ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.beginPath(); ctx.moveTo(PAD,h-PAD); ctx.lineTo(w-PAD,h-PAD); ctx.stroke(); ctx.beginPath(); ctx.moveTo(PAD,h-PAD); ctx.lineTo(PAD,PAD); ctx.stroke(); ctx.fillStyle='#aab5d1'; ctx.font='12px Arial'; ctx.fillText('Час (год)', w/2-24, h-14); ctx.save(); ctx.translate(16,h/2); ctx.rotate(-Math.PI/2); ctx.fillText('Відстань (км)', 0,0); ctx.restore(); }
+    function createScales(maxX,maxY){ const w=canvas.width,h=canvas.height; return { sx:(x)=> PAD + (x/maxX)*(w-PAD*2), sy:(y)=> h-PAD - (y/maxY)*(h-PAD*2) }; }
+    function drawSeries(points,color,label,yOffset,sx,sy){ if(points.length<2) return; ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.beginPath(); points.forEach((p,i)=>{ const x=sx(p.x), y=sy(p.y); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke(); ctx.fillStyle=color; ctx.fillText(label, PAD+8, PAD+yOffset); ctx.restore(); }
+    function drawChart(){ clearChart(); const gT=+gTime.value||0,gD=+gDist.value||0,nT=+nTime.value||0,nD=+nDist.value||0,bT=+bTime.value||0,bD=+bDist.value||0; const points=[{x:gT,y:gD},{x:nT,y:nD},{x:bT,y:bD}].filter(p=>p.x>0&&p.y>0); if(!points.length) return; const maxX=Math.max(...points.map(p=>p.x))*1.1, maxY=Math.max(...points.map(p=>p.y))*1.1, {sx,sy}=createScales(maxX,maxY); drawAxes(maxX,maxY); drawSeries([{x:0,y:0},{x:gT,y:gD}],'#6ea8fe','Google Maps',8,sx,sy); drawSeries([{x:0,y:0},{x:nT,y:nD}],'#8df1d6','HERE WeGo',28,sx,sy); drawSeries([{x:0,y:0},{x:bT,y:bD}],'#ff9d5c','OpenStreetMap',48,sx,sy); }
+    clearChart(); drawChart();
+  </script>
+</body>
+</html>
